@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Анкета для Деда Мороза</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: var(--tg-theme-bg-color, #ffffff);
+    --text: var(--tg-theme-text-color, #1c1c1e);
+    --hint: var(--tg-theme-hint-color, #8e8e93);
+    --field: var(--tg-theme-secondary-bg-color, #f2f2f7);
+    --accent: #b3263a;
+    --accent-text: #ffffff;
+    --line: color-mix(in srgb, var(--hint) 30%, transparent);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: 16px 16px 96px; }
+  header { text-align: center; margin: 4px 0 18px; }
+  header .bird { font-size: 34px; }
+  h1 { font-size: 20px; margin: 4px 0 4px; }
+  header p { margin: 0; color: var(--hint); font-size: 14px; }
+  .group { margin-bottom: 16px; }
+  label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  label small { font-weight: 400; color: var(--hint); }
+  .note { color: var(--hint); font-size: 13px; margin: -2px 0 6px; }
+  input[type=text], textarea {
+    width: 100%; border: 1px solid transparent; border-radius: 12px;
+    background: var(--field); color: var(--text); font: inherit; padding: 11px 12px; outline: none;
+  }
+  input[type=text]:focus, textarea:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 64px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    border: none; background: var(--field); color: var(--text); font: inherit;
+    border-radius: 10px; padding: 9px 0; min-width: 44px; cursor: pointer;
+  }
+  .chip.wide { flex: 1; padding: 11px 0; }
+  .chip.on { background: var(--accent); color: var(--accent-text); }
+  .consent { font-weight: 400; display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--hint); }
+  .consent input { width: 20px; height: 20px; accent-color: var(--accent); flex: 0 0 auto; margin-top: 1px; }
+  .err { color: var(--accent); font-size: 13px; margin-top: 4px; display: none; }
+  .invalid .err { display: block; }
+  #fallback { display: none; width: 100%; margin-top: 8px; padding: 14px; border: none; border-radius: 12px;
+    background: var(--accent); color: var(--accent-text); font: 600 16px/1 inherit; }
+  hr { border: none; border-top: 1px solid var(--line); margin: 20px 0 16px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="bird">🐦</div>
+    <h1>Анкета для Деда Мороза</h1>
+    <p>Чем конкретнее — тем волшебнее письмо. 2–3 минуты.</p>
+  </header>
+
+  <div class="row">
+    <div class="group" id="g-name">
+      <label for="name">Имя ребёнка</label>
+      <input type="text" id="name" maxlength="40" placeholder="Тимофей" autocomplete="off">
+      <div class="err">Напишите имя</div>
+    </div>
+    <div class="group">
+      <label for="nickname">Как зовёте дома</label>
+      <input type="text" id="nickname" maxlength="40" placeholder="Тёма" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="group" id="g-age">
+    <label>Возраст</label>
+    <div class="chips" id="age"></div>
+    <div class="err">Выберите возраст</div>
+  </div>
+
+  <div class="group" id="g-gender">
+    <label>Кто получит письмо</label>
+    <div class="chips">
+      <button class="chip wide" data-g="мальчик">Мальчик</button>
+      <button class="chip wide" data-g="девочка">Девочка</button>
+    </div>
+    <div class="err">Выберите</div>
+  </div>
+
+  <div class="group" id="g-achievements">
+    <label for="achievements">Чем порадовал в этом году</label>
+    <div class="note">1–3 дела: чему научился, чего добился, с чем справился</div>
+    <textarea id="achievements" maxlength="400" placeholder="Пошёл в первый класс, научился плавать"></textarea>
+    <div class="err">Напишите хотя бы одно дело</div>
+  </div>
+
+  <div class="group" id="g-hobbies">
+    <label for="hobbies">Чем увлекается</label>
+    <textarea id="hobbies" maxlength="250" placeholder="Динозавры, конструктор, мультик про Фиксиков"></textarea>
+    <div class="err">Напишите хотя бы одно увлечение</div>
+  </div>
+
+  <hr>
+
+  <div class="group">
+    <label for="extras">Питомцы, братья и сёстры, друзья <small>— по желанию</small></label>
+    <textarea id="extras" maxlength="300" placeholder="Сестрёнка Аня, пёс Бублик"></textarea>
+  </div>
+
+  <div class="group">
+    <label for="wish">О чём мягко попросить <small>— по желанию</small></label>
+    <input type="text" id="wish" maxlength="150" placeholder="Не драться с сестрой">
+  </div>
+
+  <div class="group">
+    <label for="avoid">О чём точно НЕ писать <small>— по желанию</small></label>
+    <input type="text" id="avoid" maxlength="150" placeholder="Переезд, болезнь…">
+  </div>
+
+  <div class="group">
+    <label>Подарок</label>
+    <div class="chips" style="margin-bottom:8px">
+      <button class="chip wide on" data-gift="no">Не упоминать</button>
+      <button class="chip wide" data-gift="yes">Намекнуть</button>
+    </div>
+    <input type="text" id="gift" maxlength="100" placeholder="На что намекнуть: например, самокат" style="display:none">
+  </div>
+
+  <div class="group" id="g-consent">
+    <label class="consent"><input type="checkbox" id="consent">
+      <span>Согласен(на) на обработку данных о ребёнке — только для письма, удаляются после отправки.</span></label>
+    <div class="err">Нужно согласие</div>
+  </div>
+
+  <button id="fallback">Отправить Деду Морозу</button>
+</main>
+
+<script>
+  const tg = window.Telegram && Telegram.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+  const $ = id => document.getElementById(id);
+  let age = null, gender = null, giftOn = false;
+
+  const ageBox = $('age');
+  for (let a = 2; a <= 14; a++) {
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = a;
+    b.onclick = () => { age = a; [...ageBox.children].forEach(c => c.classList.toggle('on', c === b)); check(false); };
+    ageBox.appendChild(b);
+  }
+  document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+    gender = b.dataset.g;
+    document.querySelectorAll('[data-g]').forEach(c => c.classList.toggle('on', c === b)); check(false);
+  });
+  document.querySelectorAll('[data-gift]').forEach(b => b.onclick = () => {
+    giftOn = b.dataset.gift === 'yes';
+    document.querySelectorAll('[data-gift]').forEach(c => c.classList.toggle('on', c === b));
+    $('gift').style.display = giftOn ? 'block' : 'none';
+    if (giftOn) $('gift').focus();
+  });
+
+  const val = id => $(id).value.trim();
+  function check(show) {
+    const rules = {
+      'g-name': val('name').length > 0,
+      'g-age': age !== null,
+      'g-gender': gender !== null,
+      'g-achievements': val('achievements').length > 2,
+      'g-hobbies': val('hobbies').length > 2,
+      'g-consent': $('consent').checked,
+    };
+    let ok = true;
+    for (const [id, good] of Object.entries(rules)) {
+      if (!good) ok = false;
+      if (show) $(id).classList.toggle('invalid', !good);
+      else if (good) $(id).classList.remove('invalid');
+    }
+    return ok;
+  }
+  document.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', () => check(false)));
+
+  function submit() {
+    if (!check(true)) {
+      const first = document.querySelector('.invalid');
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+      return;
+    }
+    const data = {
+      name: val('name'), nickname: val('nickname'), age, gender,
+      achievements: val('achievements'), hobbies: val('hobbies'),
+      extras: val('extras'), wish: val('wish'), avoid: val('avoid'),
+      gift: giftOn && val('gift') ? 'можно намекнуть на: ' + val('gift') : 'не упоминать',
+    };
+    if (tg && tg.sendData) tg.sendData(JSON.stringify(data));
+    else alert(JSON.stringify(data, null, 1));
+  }
+
+  if (tg && tg.MainButton && tg.initData !== undefined) {
+    tg.MainButton.setParams({ text: 'Отправить Деду Морозу', color: '#b3263a', text_color: '#ffffff' });
+    tg.MainButton.show();
+    tg.MainButton.onClick(submit);
+  }
+  if (!tg || !tg.initData) { $('fallback').style.display = 'block'; }
+  $('fallback').onclick = submit;
+</script>
+</body>
+</html>
